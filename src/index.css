@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-textdark bg-slate-50 antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-textdark;
+  }
+}
+
+@layer utilities {
+  .page-title {
+    @apply text-3xl font-bold text-gray-800;
+  }
+  .page-subtitle {
+    @apply text-sm text-gray-500 mt-1;
+  }
+  .card-label {
+    @apply text-sm font-medium tracking-wider;
+  }
+  .card-value {
+    @apply text-3xl font-bold mt-2;
+  }
+  .table-header-cell {
+    @apply px-5 py-4 text-left text-sm font-bold;
+  }
+  .table-body-cell {
+    @apply px-5 py-4 text-sm text-gray-700;
+  }
+}

@@ -1,0 +1,42 @@
+export const pesticides = [
+  {
+    id: "P001",
+    farmerId: "F001",
+    pesticide: "Tricyclazole 75 WP",
+    dosage: "120 g/acre",
+    sprayTime: "Morning",
+    status: "Recommended",
+  },
+  {
+    id: "P002",
+    farmerId: "F002",
+    pesticide: "Carbendazim 50 WP",
+    dosage: "250 g/acre",
+    sprayTime: "Evening",
+    status: "Recommended",
+  },
+  {
+    id: "P003",
+    farmerId: "F003",
+    pesticide: "Copper Oxychloride",
+    dosage: "300 g/acre",
+    sprayTime: "Morning",
+    status: "Applied",
+  },
+  {
+    id: "P004",
+    farmerId: "F004",
+    pesticide: "Thiophanate Methyl",
+    dosage: "250 g/acre",
+    sprayTime: "Morning",
+    status: "Recommended",
+  },
+  {
+    id: "P005",
+    farmerId: "F005",
+    pesticide: "Mancozeb 75 WP",
+    dosage: "400 g/acre",
+    sprayTime: "Evening",
+    status: "Applied",
+  },
+];
