@@ -1,0 +1,13 @@
+com\example\analytics\config\MongoConfig.class
+com\example\analytics\config\SecurityConfig.class
+com\example\analytics\controller\NotificationController.class
+com\example\analytics\config\DataSeeder.class
+com\example\analytics\AnalyticsApplication.class
+com\example\analytics\service\AnalyticsService.class
+com\example\analytics\model\AnalyticsData.class
+com\example\analytics\model\Notification.class
+com\example\analytics\config\WebConfig.class
+com\example\analytics\service\NotificationService.class
+com\example\analytics\controller\AnalyticsController.class
+com\example\analytics\repository\NotificationRepository.class
+com\example\analytics\repository\AnalyticsRepository.class

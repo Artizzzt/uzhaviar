@@ -1,0 +1,13 @@
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\AnalyticsApplication.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\config\DataSeeder.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\config\MongoConfig.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\config\SecurityConfig.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\config\WebConfig.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\controller\AnalyticsController.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\controller\NotificationController.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\model\AnalyticsData.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\model\Notification.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\repository\AnalyticsRepository.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\repository\NotificationRepository.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\service\AnalyticsService.java
+C:\Users\selva\Downloads\project21\backend\analytics-service\src\main\java\com\example\analytics\service\NotificationService.java
