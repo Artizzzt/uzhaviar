@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { analysisData } from '../../data/mockData';
+import { analysisData as mockAnalysisData } from '../../data/mockData';
+import { getAnalytics } from '../../services/api';
 import { Card } from '../../components/Card';
 
 import { 
@@ -29,6 +30,17 @@ import {
 const Analysis = () => {
   const { user } = useApp();
   const [expandedChart, setExpandedChart] = React.useState(null);
+  const [analysisData, setAnalysisData] = useState(mockAnalysisData);
+
+  useEffect(() => {
+    let isMounted = true;
+    getAnalytics().then(data => {
+      if (isMounted && data && (data.cropHealthTrend || data.fertilizerTrend)) {
+        setAnalysisData(data);
+      }
+    }).catch(err => console.warn("Backend analytics fallback", err));
+    return () => { isMounted = false; };
+  }, []);
 
   // Generate current dynamically formatted Month Year
   const currentMonthYear = new Date().toLocaleDateString('en-IN', {

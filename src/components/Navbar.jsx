@@ -18,6 +18,7 @@ import {
   FlaskConical
 } from 'lucide-react';
 import { notifications as initialNotifications } from '../data/mockData';
+import { getNotifications } from '../services/api';
 import Button from './Button';
 
 const Navbar = ({ variant = 'public', forceProfileOpen = false }) => {
@@ -30,6 +31,16 @@ const Navbar = ({ variant = 'public', forceProfileOpen = false }) => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   
   const navbarRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    getNotifications().then(data => {
+      if (isMounted && Array.isArray(data) && data.length > 0) {
+        setNotifications(data);
+      }
+    }).catch(err => console.warn("Backend notifications fallback", err));
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {

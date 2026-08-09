@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { useApp } from "../../context/AppContext";
+import { createFarmer, createDisease, createPesticide } from "../../services/api";
 
 const AddFarmer = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const AddFarmer = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
@@ -70,10 +71,15 @@ const AddFarmer = () => {
       humidity: 70,
     };
 
-    // 1. Add Farmer to Context
-    setFarmers((prev) => [...prev, newFarmer]);
+    try {
+      const savedFarmer = await createFarmer(newFarmer);
+      setFarmers((prev) => [...prev, savedFarmer || newFarmer]);
+    } catch (err) {
+      console.warn("Backend createFarmer fallback", err);
+      setFarmers((prev) => [...prev, newFarmer]);
+    }
 
-    // 2. Add Disease (optional)
+    // Add Disease (optional)
     if (diseaseForm.disease && diseaseForm.disease !== "None") {
       const nextDiseaseId = "D" + String(diseases.length + 1).padStart(3, "0");
       const newDisease = {
@@ -88,9 +94,14 @@ const AddFarmer = () => {
         fertilizer: "NPK Mix",
         date: new Date().toLocaleDateString("en-IN"),
       };
-      setDiseases((prev) => [...prev, newDisease]);
+      try {
+        const savedDis = await createDisease(newDisease);
+        setDiseases((prev) => [...prev, savedDis || newDisease]);
+      } catch (err) {
+        setDiseases((prev) => [...prev, newDisease]);
+      }
 
-      // 3. Add Pesticide (optional)
+      // Add Pesticide (optional)
       if (diseaseForm.pesticide) {
         const nextPesticideId = "P" + String(pesticides.length + 1).padStart(3, "0");
         const newPesticide = {
@@ -101,7 +112,12 @@ const AddFarmer = () => {
           sprayTime: diseaseForm.sprayTime,
           status: "Recommended",
         };
-        setPesticides((prev) => [...prev, newPesticide]);
+        try {
+          const savedPest = await createPesticide(newPesticide);
+          setPesticides((prev) => [...prev, savedPest || newPesticide]);
+        } catch (err) {
+          setPesticides((prev) => [...prev, newPesticide]);
+        }
       }
     }
 

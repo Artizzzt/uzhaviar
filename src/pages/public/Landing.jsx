@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import Button from '../../components/Button';
 import { Card } from '../../components/Card';
-import { platformStats, howItWorksSteps, testimonials, faqs } from '../../data/mockData';
+import { platformStats, howItWorksSteps, testimonials as mockTestimonials, faqs as mockFaqs } from '../../data/mockData';
+import { getFaqs, getTestimonials } from '../../services/api';
 import { 
   Users, 
   Zap, 
@@ -28,6 +29,23 @@ import {
 const Landing = () => {
   const navigate = useNavigate();
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [faqsList, setFaqsList] = useState(mockFaqs);
+  const [testimonialsList, setTestimonialsList] = useState(mockTestimonials);
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.allSettled([getFaqs(), getTestimonials()]).then(([faqsRes, testRes]) => {
+      if (isMounted) {
+        if (faqsRes.status === 'fulfilled' && Array.isArray(faqsRes.value) && faqsRes.value.length > 0) {
+          setFaqsList(faqsRes.value);
+        }
+        if (testRes.status === 'fulfilled' && Array.isArray(testRes.value) && testRes.value.length > 0) {
+          setTestimonialsList(testRes.value);
+        }
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   // Map icon strings to Lucide components for Stats Bar
   const getStatsIcon = (iconName) => {
@@ -380,8 +398,8 @@ const Landing = () => {
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((item, idx) => (
-              <Card key={idx} className="bg-white rounded-card shadow-soft p-8 flex flex-col justify-between border-transparent">
+            {testimonialsList.map((item, idx) => (
+              <Card key={item.id || idx} className="bg-white rounded-card shadow-soft p-8 flex flex-col justify-between border-transparent">
                 <div>
                   {/* Rating stars */}
                   <div className="flex gap-0.5 mb-4">
@@ -407,7 +425,7 @@ const Landing = () => {
                   {/* Profile Block */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-sm select-none">
-                      {item.name.charAt(0)}
+                      {(item.name || 'F').charAt(0)}
                     </div>
                     <div>
                       <h4 className="font-extrabold text-sm text-textdark">{item.name}</h4>
@@ -464,7 +482,7 @@ const Landing = () => {
 
           {/* Accordion List */}
           <div className="space-y-3.5">
-            {faqs.map((faq, idx) => {
+            {faqsList.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
                 <div 

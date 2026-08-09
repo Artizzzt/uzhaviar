@@ -10,6 +10,7 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
+import { deleteFarmer as apiDeleteFarmer } from "../../services/api";
 
 const AllFarmers = () => {
   const [search, setSearch] = useState("");
@@ -19,18 +20,23 @@ const AllFarmers = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const filteredFarmers = farmers.filter((farmer) =>
-    farmer.name.toLowerCase().includes(search.toLowerCase()) ||
-    farmer.village.toLowerCase().includes(search.toLowerCase()) ||
-    farmer.crop.toLowerCase().includes(search.toLowerCase())
+    (farmer.name || "").toLowerCase().includes(search.toLowerCase()) ||
+    (farmer.village || "").toLowerCase().includes(search.toLowerCase()) ||
+    (farmer.crop || "").toLowerCase().includes(search.toLowerCase())
   );
   const handleDelete = (id) => {
     setDeleteConfirmId(id);
   };
 
-  const confirmDeleteAction = () => {
+  const confirmDeleteAction = async () => {
     if (deleteConfirmId) {
+      try {
+        await apiDeleteFarmer(deleteConfirmId);
+      } catch (err) {
+        console.warn("Backend delete error, fallback local remove", err);
+      }
       setFarmers((prevFarmers) =>
-        prevFarmers.filter((farmer) => farmer.id !== deleteConfirmId)
+        prevFarmers.filter((farmer) => farmer.id !== deleteConfirmId && farmer._id !== deleteConfirmId)
       );
       showToast("Farmer deleted successfully!", "success");
       setDeleteConfirmId(null);

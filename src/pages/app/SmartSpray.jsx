@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { pesticides } from '../../data/mockData';
+import { pesticides as mockPesticides } from '../../data/mockData';
+import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/Card';
 import Button from '../../components/Button';
 
@@ -14,6 +15,8 @@ import {
 } from 'lucide-react';
 
 const SmartSpray = () => {
+  const { pesticides: livePesticides } = useApp();
+  const pesticidesList = (livePesticides && livePesticides.length > 0) ? livePesticides : mockPesticides;
   const [selectedPesticide, setSelectedPesticide] = useState(null);
 
   return (
@@ -38,7 +41,7 @@ const SmartSpray = () => {
 
       {/* 2. PESTICIDES CARDS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {pesticides.map((pest) => (
+        {pesticidesList.map((pest) => (
           <Card 
             key={pest.id} 
             className="hover:translate-y-[-2px] transition-transform duration-200 flex flex-col justify-between h-full border border-slate-100 p-6"

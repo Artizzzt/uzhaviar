@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { cropDiseases } from '../../data/mockData';
+import { cropDiseases as mockCropDiseases } from '../../data/mockData';
 import { Card } from '../../components/Card';
 import Button from '../../components/Button';
 
@@ -16,11 +16,12 @@ import {
 } from 'lucide-react';
 
 const CropHealth = () => {
-  const { user } = useApp();
+  const { user, diseases: liveDiseases } = useApp();
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState(null);
 
-  const diseaseCount = cropDiseases.length;
+  const diseasesList = (liveDiseases && liveDiseases.length > 0) ? liveDiseases : mockCropDiseases;
+  const diseaseCount = diseasesList.length;
 
   const severityColors = {
     Low: 'bg-lightgreen text-primary border-green-200/60',
@@ -84,21 +85,21 @@ const CropHealth = () => {
 
         {/* RIGHT COLUMN: Stacked list of disease cards (~2/3 width) */}
         <div className="lg:col-span-2 space-y-4">
-          {cropDiseases.map((disease) => {
+          {diseasesList.map((disease) => {
             const isExpanded = expandedId === disease.id;
             return (
               <Card 
-                key={disease.id}
+                key={disease.id || disease._id}
                 className="border border-slate-100 hover:border-slate-200 shadow-soft p-5 transition-all duration-200"
               >
                 {/* Header row */}
                 <div 
-                  onClick={() => handleToggleExpand(disease.id)}
+                  onClick={() => handleToggleExpand(disease.id || disease._id)}
                   className="flex items-start justify-between gap-4 cursor-pointer select-none"
                 >
                   <div className="space-y-1">
                     <h3 className="font-extrabold text-base text-textdark hover:text-primary transition-colors">
-                      {disease.name}
+                      {disease.disease || disease.name}
                     </h3>
                     <div className="flex items-center gap-2">
                       <span className={`text-[10px] font-bold px-2 py-0.5 border rounded-full uppercase tracking-wider ${severityColors[disease.severity]}`}>

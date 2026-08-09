@@ -18,10 +18,17 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user } = useApp();
+  const { user, farmers, diseases, pesticides } = useApp();
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isFertilizerModalOpen, setIsFertilizerModalOpen] = useState(false);
+
+  const healthyCount = (farmers && farmers.length > 0) ? farmers.filter(f => f.status === 'Active').length : 4;
+  const totalFarmers = (farmers && farmers.length > 0) ? farmers.length : 5;
+  const healthyPercentage = Math.round((healthyCount / totalFarmers) * 100);
+  const diseaseCount = (diseases && diseases.length > 0) ? diseases.length : 2;
+  const sprayedCount = (pesticides && pesticides.length > 0) ? pesticides.filter(p => p.status === 'Applied').length : 1;
+
   const [envReadings, setEnvReadings] = useState({
     temperature: {
       value: dashboardData.environmentalConditions.temperature.value,
@@ -112,24 +119,24 @@ const Dashboard = () => {
         <StatCard
           icon={Sprout}
           label="Healthy Crops"
-          value={`${dashboardData.healthyCrops.percentage}%`}
-          trend={dashboardData.healthyCrops.trend}
+          value={`${healthyPercentage}%`}
+          trend={`${healthyCount} out of ${totalFarmers} active farms`}
         />
 
         {/* Disease Detected */}
         <StatCard
           icon={AlertTriangle}
           label="Disease Detected"
-          value={`${dashboardData.diseaseDetected.percentage}%`}
-          trend={dashboardData.diseaseDetected.trend}
+          value={`${diseaseCount}`}
+          trend={`${diseaseCount} reported crop disease cases`}
         />
 
         {/* Sprayed Areas */}
         <StatCard
           icon={Wind}
           label="Sprayed Areas"
-          value={`${dashboardData.sprayedAreas.percentage}%`}
-          trend={dashboardData.sprayedAreas.status}
+          value={`${sprayedCount}`}
+          trend={`${sprayedCount} confirmed pesticide applications`}
         />
 
       </div>

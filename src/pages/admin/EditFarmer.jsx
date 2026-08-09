@@ -3,11 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { useApp } from "../../context/AppContext";
+import { updateFarmer as apiUpdateFarmer } from "../../services/api";
 
 const EditFarmer = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { showToast } = useApp();
+  const { setFarmers, showToast } = useApp();
 
   if (!state) {
     return (
@@ -36,10 +37,21 @@ const EditFarmer = () => {
     });
   };
 
-  const handleSave = () => {
-    showToast("Farmer details updated successfully!", "success");
-
-    // Later you can call your backend API here.
+  const handleSave = async () => {
+    try {
+      const dbId = state.id || state._id;
+      const updated = await apiUpdateFarmer(dbId, farmer);
+      setFarmers((prev) =>
+        prev.map((f) => (f.id === state.id || f._id === dbId ? { ...f, ...farmer, ...(updated || {}) } : f))
+      );
+      showToast("Farmer details updated successfully!", "success");
+    } catch (err) {
+      console.warn("Backend update error, local update fallback", err);
+      setFarmers((prev) =>
+        prev.map((f) => (f.id === state.id ? { ...f, ...farmer } : f))
+      );
+      showToast("Farmer details updated locally!", "success");
+    }
 
     navigate("/admin/farmers");
   };

@@ -1,21 +1,61 @@
-import React, { createContext, useState, useContext, useMemo, useCallback } from 'react';
+import React, { createContext, useState, useContext, useMemo, useCallback, useEffect } from 'react';
 import { mockUser } from '../data/mockData';
 import { farmers as initialFarmers } from '../data/farmers';
 import { diseases as initialDiseases } from '../data/diseases';
 import { pesticides as initialPesticides } from '../data/pesticides';
 import { CheckCircle2, AlertTriangle, AlertCircle, X } from 'lucide-react';
+import { 
+  getFarmers, 
+  getDiseases, 
+  getPesticides, 
+  loginApi, 
+  registerApi, 
+  createFarmer as apiCreateFarmer, 
+  updateFarmer as apiUpdateFarmer, 
+  deleteFarmer as apiDeleteFarmer 
+} from '../services/api';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  // Simple mock user authentication state
+  // Authentication & Domain States
   const [user, setUser] = useState(mockUser);
   const [farmers, setFarmers] = useState(initialFarmers);
   const [diseases, setDiseases] = useState(initialDiseases);
   const [pesticides, setPesticides] = useState(initialPesticides);
   const [deletedFarmers, setDeletedFarmers] = useState([]);
 
-  // State for the multi-step registration form
+  // Load live data from Spring Boot API on mount
+  useEffect(() => {
+    let isMounted = true;
+    async function loadBackendData() {
+      try {
+        const [farmersData, diseasesData, pesticidesData] = await Promise.allSettled([
+          getFarmers(),
+          getDiseases(),
+          getPesticides()
+        ]);
+
+        if (isMounted) {
+          if (farmersData.status === 'fulfilled' && Array.isArray(farmersData.value) && farmersData.value.length > 0) {
+            setFarmers(farmersData.value);
+          }
+          if (diseasesData.status === 'fulfilled' && Array.isArray(diseasesData.value) && diseasesData.value.length > 0) {
+            setDiseases(diseasesData.value);
+          }
+          if (pesticidesData.status === 'fulfilled' && Array.isArray(pesticidesData.value) && pesticidesData.value.length > 0) {
+            setPesticides(pesticidesData.value);
+          }
+        }
+      } catch (err) {
+        console.warn("Spring Boot backend offline, falling back to local state.", err);
+      }
+    }
+    loadBackendData();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Multi-step registration state
   const [registrationData, setRegistrationData] = useState({
     step: 1,
     name: "",
@@ -29,7 +69,16 @@ export const AppProvider = ({ children }) => {
     state: "Tamil Nadu",
   });
 
-  const login = useCallback((email, password) => {
+  const login = useCallback(async (email, password) => {
+    try {
+      const res = await loginApi(email, password);
+      if (res && res.user) {
+        setUser(res.user);
+        return true;
+      }
+    } catch (e) {
+      console.warn("Backend login failed, fallback login", e);
+    }
     setUser({
       name: "Farmer Murugan",
       email: email || "murugan@gmail.com",
@@ -43,8 +92,18 @@ export const AppProvider = ({ children }) => {
     return true;
   }, []);
 
-  const register = useCallback((data) => {
-    setUser({
+  const register = useCallback(async (data) => {
+    try {
+      const res = await registerApi(data);
+      if (res && res.user) {
+        setUser(res.user);
+        setFarmers(prev => [...prev, res.user]);
+        return true;
+      }
+    } catch (e) {
+      console.warn("Backend registration failed, fallback local registration", e);
+    }
+    const newFarmer = {
       name: data.name || "New Farmer",
       email: data.email || "farmer@example.com",
       phone: data.phone || "+91 99999-99999",
@@ -53,7 +112,9 @@ export const AppProvider = ({ children }) => {
       cropType: data.cropType || "Paddy",
       landArea: data.landArea || "3 acres",
       location: `${data.district || "Coimbatore"}, ${data.state || "Tamil Nadu"}`
-    });
+    };
+    setUser(newFarmer);
+    setFarmers(prev => [...prev, newFarmer]);
     return true;
   }, []);
 
@@ -65,14 +126,8 @@ export const AppProvider = ({ children }) => {
 
   const showToast = useCallback((message, type = "success") => {
     setToast({ message, type });
-    // Auto dismiss after 3 seconds
     const timer = setTimeout(() => {
-      setToast(prev => {
-        if (prev?.message === message) {
-          return null;
-        }
-        return prev;
-      });
+      setToast(prev => (prev?.message === message ? null : prev));
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
