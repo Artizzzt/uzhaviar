@@ -47,7 +47,7 @@ public class AuthController {
             // Create default farmer profile if not existing
             farmer = new Farmer();
             farmer.setName("Farmer Murugan");
-            farmer.setEmail(email != null ? email : "swath@gmail.com");
+            farmer.setEmail(email != null ? email : "aswath@gmail.com");
             if (rawPassword != null) {
                 farmer.setPassword(passwordEncoder.encode(rawPassword));
             }
