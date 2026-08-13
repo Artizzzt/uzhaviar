@@ -13,22 +13,17 @@ import {
 } from 'lucide-react';
 
 const Settings = () => {
-  const { user } = useApp();
+  const { user, notificationPreferences, updateUserPreferences } = useApp();
   const navigate = useNavigate();
 
   const [activeModal, setActiveModal] = useState(null);
 
-  const [alerts, setAlerts] = useState({
-    fertilizer: true,
-    disease: true,
-    weekly: false
-  });
-
   const toggleAlert = (key) => {
-    setAlerts((prev) => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+    updateUserPreferences({
+      ...notificationPreferences,
+      farmerId: user?.id || "FRM-2026-979",
+      [key]: !notificationPreferences[key]
+    });
   };
 
   const handleBackClick = () => {
@@ -240,7 +235,7 @@ const Settings = () => {
                 <button
                   onClick={() => toggleAlert('fertilizer')}
                   className={`w-11 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${
-                    alerts.fertilizer
+                    notificationPreferences.fertilizer
                       ? 'bg-primary'
                       : 'bg-slate-200'
                   }`}
@@ -248,7 +243,7 @@ const Settings = () => {
 
                   <span
                     className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-200 ${
-                      alerts.fertilizer
+                      notificationPreferences.fertilizer
                         ? 'right-1'
                         : 'left-1'
                     }`}
@@ -277,7 +272,7 @@ const Settings = () => {
                 <button
                   onClick={() => toggleAlert('disease')}
                   className={`w-11 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${
-                    alerts.disease
+                    notificationPreferences.disease
                       ? 'bg-primary'
                       : 'bg-slate-200'
                   }`}
@@ -285,7 +280,7 @@ const Settings = () => {
 
                   <span
                     className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-200 ${
-                      alerts.disease
+                      notificationPreferences.disease
                         ? 'right-1'
                         : 'left-1'
                     }`}
@@ -314,7 +309,7 @@ const Settings = () => {
                 <button
                   onClick={() => toggleAlert('weekly')}
                   className={`w-11 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${
-                    alerts.weekly
+                    notificationPreferences.weekly
                       ? 'bg-primary'
                       : 'bg-slate-200'
                   }`}
@@ -322,7 +317,7 @@ const Settings = () => {
 
                   <span
                     className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-200 ${
-                      alerts.weekly
+                      notificationPreferences.weekly
                         ? 'right-1'
                         : 'left-1'
                     }`}
@@ -335,19 +330,7 @@ const Settings = () => {
             </div>
 
 
-            {/* SAVE BUTTON */}
-            <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
 
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setActiveModal(null)}
-                className="font-bold px-6 py-2"
-              >
-                Save Preferences
-              </Button>
-
-            </div>
 
           </div>
 

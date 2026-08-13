@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useMemo, useCallback, useEffect } from 'react';
-import { mockUser } from '../data/mockData';
+import { mockUser, notifications as initialNotifications } from '../data/mockData';
 import { farmers as initialFarmers } from '../data/farmers';
 import { diseases as initialDiseases } from '../data/diseases';
 import { pesticides as initialPesticides } from '../data/pesticides';
@@ -12,7 +12,10 @@ import {
   registerApi, 
   createFarmer as apiCreateFarmer, 
   updateFarmer as apiUpdateFarmer, 
-  deleteFarmer as apiDeleteFarmer 
+  deleteFarmer as apiDeleteFarmer,
+  getNotifications,
+  getNotificationPreferences,
+  saveNotificationPreferences
 } from '../services/api';
 
 const AppContext = createContext();
@@ -23,6 +26,8 @@ export const AppProvider = ({ children }) => {
   const [farmers, setFarmers] = useState(initialFarmers);
   const [diseases, setDiseases] = useState(initialDiseases);
   const [pesticides, setPesticides] = useState(initialPesticides);
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notificationPreferences, setNotificationPreferences] = useState({ fertilizer: true, disease: true, weekly: true });
   const [deletedFarmers, setDeletedFarmers] = useState([]);
 
   // Load live data from Spring Boot API on mount
@@ -68,6 +73,47 @@ export const AppProvider = ({ children }) => {
     district: "",
     state: "Tamil Nadu",
   });
+
+  const fetchUserNotifications = useCallback(async (farmerId) => {
+    try {
+      const data = await getNotifications(farmerId);
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      }
+    } catch (err) {
+      console.warn("Backend notifications offline", err);
+    }
+  }, []);
+
+  const fetchUserPreferences = useCallback(async (farmerId) => {
+    try {
+      const data = await getNotificationPreferences(farmerId);
+      if (data) {
+        setNotificationPreferences(data);
+      }
+    } catch (err) {
+      console.warn("Backend preferences offline", err);
+    }
+  }, []);
+
+  const updateUserPreferences = useCallback(async (prefs) => {
+    setNotificationPreferences(prefs);
+    try {
+      await saveNotificationPreferences(prefs);
+      if (user?.id) {
+        fetchUserNotifications(user.id);
+      }
+    } catch (err) {
+      console.error("Failed to save preferences to backend", err);
+    }
+  }, [user, fetchUserNotifications]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserPreferences(user.id);
+      fetchUserNotifications(user.id);
+    }
+  }, [user, fetchUserPreferences, fetchUserNotifications]);
 
   const login = useCallback(async (email, password) => {
     try {
@@ -150,8 +196,18 @@ export const AppProvider = ({ children }) => {
     setPesticides,
     showToast,
     deletedFarmers,
-    setDeletedFarmers
-  }), [user, registrationData, login, logout, register, farmers, diseases, pesticides, showToast, deletedFarmers]);
+    setDeletedFarmers,
+    notifications,
+    setNotifications,
+    notificationPreferences,
+    setNotificationPreferences,
+    fetchUserNotifications,
+    fetchUserPreferences,
+    updateUserPreferences
+  }), [
+    user, registrationData, login, logout, register, farmers, diseases, pesticides, showToast, deletedFarmers,
+    notifications, notificationPreferences, fetchUserNotifications, fetchUserPreferences, updateUserPreferences
+  ]);
 
   const borderClasses = {
     success: "border-l-green-600",

@@ -1,6 +1,8 @@
 package com.example.analytics.controller;
 
 import com.example.analytics.model.Notification;
+import com.example.analytics.model.NotificationPreference;
+import com.example.analytics.repository.NotificationPreferenceRepository;
 import com.example.analytics.service.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +15,18 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationPreferenceRepository preferenceRepository;
 
-    public NotificationController(NotificationService notificationService) {
+    public NotificationController(NotificationService notificationService, NotificationPreferenceRepository preferenceRepository) {
         this.notificationService = notificationService;
+        this.preferenceRepository = preferenceRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getAllNotifications() {
+    public ResponseEntity<List<Notification>> getAllNotifications(@RequestParam(required = false) String farmerId) {
+        if (farmerId != null && !farmerId.isEmpty()) {
+            return ResponseEntity.ok(notificationService.getAllNotificationsFiltered(farmerId));
+        }
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
@@ -37,5 +44,18 @@ public class NotificationController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/preferences/{farmerId}")
+    public ResponseEntity<NotificationPreference> getPreferences(@PathVariable String farmerId) {
+        NotificationPreference prefs = preferenceRepository.findById(farmerId)
+                .orElseGet(() -> new NotificationPreference(farmerId, true, true, true));
+        return ResponseEntity.ok(prefs);
+    }
+
+    @PostMapping("/preferences")
+    public ResponseEntity<NotificationPreference> savePreferences(@RequestBody NotificationPreference prefs) {
+        NotificationPreference saved = preferenceRepository.save(prefs);
+        return ResponseEntity.ok(saved);
     }
 }

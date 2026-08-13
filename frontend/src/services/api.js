@@ -65,7 +65,12 @@ export const updatePesticide = (id, pesticideData) => fetchJson(`/pesticides/${i
 });
 
 // Notifications API
-export const getNotifications = () => fetchJson('/notifications');
+export const getNotifications = (farmerId) => fetchJson(`/notifications${farmerId ? `?farmerId=${farmerId}` : ''}`);
+export const getNotificationPreferences = (farmerId) => fetchJson(`/notifications/preferences/${farmerId}`);
+export const saveNotificationPreferences = (prefs) => fetchJson('/notifications/preferences', {
+  method: 'POST',
+  body: JSON.stringify(prefs),
+});
 export const markNotificationRead = (id) => fetchJson(`/notifications/${id}/read`, {
   method: 'PUT',
 });
