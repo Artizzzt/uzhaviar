@@ -1,22 +1,27 @@
 package com.example.cropdisease.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
 
-@Document(collection = "diseases")
+@Entity
+@Table(name = "diseases")
 public class Disease {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String farmerId;
     private String disease;
     private String severity; // High, Medium, Low
     private String status;   // Detected, Under Treatment, Recovered
     private String image;
+
+    @Column(columnDefinition = "TEXT")
     private String symptoms;
     private String pesticide;
     private String fertilizer;
     private String date;
+
+    @Column(columnDefinition = "TEXT")
     private String action;
 
     public Disease() {}

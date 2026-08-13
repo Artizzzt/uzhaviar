@@ -1,11 +1,11 @@
 package com.example.farmer.repository;
 
 import com.example.farmer.model.Farmer;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.List;
 
-public interface FarmerRepository extends MongoRepository<Farmer, String> {
+public interface FarmerRepository extends JpaRepository<Farmer, String> {
     Optional<Farmer> findByEmail(String email);
     Optional<Farmer> findByFarmerId(String farmerId);
     List<Farmer> findByStatus(String status);

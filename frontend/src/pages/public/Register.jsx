@@ -141,9 +141,13 @@ const Register = () => {
     }
   };
 
-  const handleFinish = () => {
-    register(formData);
-    navigate('/dashboard');
+  const handleFinish = async () => {
+    try {
+      await register(formData);
+      navigate('/dashboard');
+    } catch (e) {
+      setError('Registration failed. Please try again.');
+    }
   };
 
   // Render Step Indicator Timeline
@@ -324,7 +328,7 @@ const Register = () => {
               <div className="pt-4 flex justify-between items-center gap-3">
                 <Button 
                   variant="ghost" 
-                  onClick={() => navigate('/role-selection')}
+                  onClick={() => navigate('/')}
                   className="font-bold flex items-center gap-1.5"
                 >
                   <ArrowLeft size={15} className="stroke-[3]" />

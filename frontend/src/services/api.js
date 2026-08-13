@@ -19,7 +19,7 @@ async function fetchJson(endpoint, options = {}) {
     }
     if (response.status === 204) return null; // No Content
     return await response.json();
-  } catch (error) {
+  } catch (error)  {
     console.warn(`API Error at ${endpoint}:`, error.message);
     throw error;
   }
@@ -57,6 +57,10 @@ export const getPesticides = () => fetchJson('/pesticides');
 export const getPesticidesByFarmer = (farmerId) => fetchJson(`/pesticides/farmer/${farmerId}`);
 export const createPesticide = (pesticideData) => fetchJson('/pesticides', {
   method: 'POST',
+  body: JSON.stringify(pesticideData),
+});
+export const updatePesticide = (id, pesticideData) => fetchJson(`/pesticides/${id}`, {
+  method: 'PUT',
   body: JSON.stringify(pesticideData),
 });
 

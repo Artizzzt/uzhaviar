@@ -43,7 +43,7 @@ const AdminSignIn = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-8 relative">
 
         <Link
-          to="/role-selection"
+          to="/"
           className="absolute top-8 left-8 flex items-center gap-2 text-blue-700 font-semibold"
         >
           <ArrowLeft size={18} />

@@ -1,12 +1,13 @@
 package com.example.cropdisease.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
 
-@Document(collection = "pesticides")
+@Entity
+@Table(name = "pesticides")
 public class Pesticide {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String farmerId;
     private String pesticide;
@@ -14,8 +15,12 @@ public class Pesticide {
     private String sprayTime;
     private String cost;
     private String status; // Recommended, Applied
+
+    @Column(columnDefinition = "TEXT")
     private String targetPests;
     private String method;
+
+    @Column(columnDefinition = "TEXT")
     private String precautions;
 
     public Pesticide() {}

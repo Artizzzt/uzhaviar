@@ -10,7 +10,7 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
-import { deleteFarmer as apiDeleteFarmer } from "../../services/api";
+import { deleteFarmer as apiDeleteFarmer, updateFarmer as apiUpdateFarmer } from "../../services/api";
 
 const AllFarmers = () => {
   const [search, setSearch] = useState("");
@@ -127,7 +127,7 @@ const AllFarmers = () => {
                         : "bg-gray-50"
                     } hover:bg-green-50`}
                   >
-                    <td className="table-body-cell">{farmer.id}</td>
+                    <td className="table-body-cell">{farmer.farmerId || farmer.id}</td>
                     <td className="table-body-cell font-medium">
                       {farmer.name}
                     </td>
@@ -227,8 +227,13 @@ const AllFarmers = () => {
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl border border-green-100 mx-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Edit Farmer Details</h2>
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
+                try {
+                  await apiUpdateFarmer(editingFarmer.id, editingFarmer);
+                } catch (err) {
+                  console.warn("Backend update error, fallback local update only", err);
+                }
                 setFarmers((prev) =>
                   prev.map((f) => (f.id === editingFarmer.id ? editingFarmer : f))
                 );

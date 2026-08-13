@@ -1,0 +1,36 @@
+# Local MySQL Data
+mysql_data/
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Maven build outputs
+target/
+**/target/
+
+# Environment configurations and secrets
+.env
+.env.*
+*.pem
+*.key
+
+# IDE settings
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Compiled Java classes
+*.class
+
+# Frontend build output
+dist/
+**/dist/
+
+# OS files
+.DS_Store
+Thumbs.db

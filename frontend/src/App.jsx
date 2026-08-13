@@ -32,6 +32,7 @@ import Analysis from './pages/app/Analysis';
 import Profile from './pages/app/Profile';
 import Settings from './pages/app/Settings';
 import ContactUs from './pages/app/ContactUs';
+import Request from './pages/app/Request';
 
 function App() {
   return (

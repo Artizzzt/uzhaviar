@@ -1,17 +1,20 @@
 package com.example.farmer.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
 
-@Document(collection = "testimonials")
+@Entity
+@Table(name = "testimonials")
 public class Testimonial {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String name;
     private String cropType;
     private String landArea;
     private String location;
+
+    @Column(name = "testimonial_text", columnDefinition = "TEXT")
     private String text;
     private int rating;
 

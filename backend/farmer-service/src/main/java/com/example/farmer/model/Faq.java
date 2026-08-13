@@ -1,12 +1,13 @@
 package com.example.farmer.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
 
-@Document(collection = "faqs")
+@Entity
+@Table(name = "faqs")
 public class Faq {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String question;
     private String answer;

@@ -3,6 +3,7 @@ import { FaSearch, FaFlask } from "react-icons/fa";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { useApp } from "../../context/AppContext";
+import { updatePesticide as apiUpdatePesticide } from "../../services/api";
 
 const PesticideControl = () => {
   const { farmers, diseases, pesticides, setPesticides, showToast } = useApp();
@@ -29,8 +30,17 @@ const PesticideControl = () => {
     setToggleConfirm({ id, newStatus });
   };
 
-  const confirmToggleAction = () => {
+  const confirmToggleAction = async () => {
     if (toggleConfirm) {
+      const original = pesticides.find((p) => p.id === toggleConfirm.id);
+      if (original) {
+        try {
+          const updatedBody = { ...original, status: toggleConfirm.newStatus };
+          await apiUpdatePesticide(toggleConfirm.id, updatedBody);
+        } catch (err) {
+          console.warn("Backend pesticide update fallback", err);
+        }
+      }
       setPesticides((prev) =>
         prev.map((p) => (p.id === toggleConfirm.id ? { ...p, status: toggleConfirm.newStatus } : p))
       );

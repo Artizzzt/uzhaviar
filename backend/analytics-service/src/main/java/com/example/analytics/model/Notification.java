@@ -1,17 +1,20 @@
 package com.example.analytics.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
 
-@Document(collection = "notifications")
+@Entity
+@Table(name = "notifications")
 public class Notification {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String icon;
     private String title;
     private String message;
     private String timestamp;
+
+    @Column(name = "is_read")
     private boolean read;
     private String link;
 

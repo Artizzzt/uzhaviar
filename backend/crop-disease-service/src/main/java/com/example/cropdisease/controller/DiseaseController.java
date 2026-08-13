@@ -54,6 +54,6 @@ public class DiseaseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDisease(@PathVariable String id) {
         diseaseService.deleteDisease(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); 
     }
 }

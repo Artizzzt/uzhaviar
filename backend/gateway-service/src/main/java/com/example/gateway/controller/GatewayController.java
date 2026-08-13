@@ -36,6 +36,7 @@ public class GatewayController {
     @RequestMapping({
         "/api/diseases/**",
         "/api/pesticides/**",
+        "/api/upload/**",
         "/uploads/**"
     })
     public ResponseEntity<byte[]> routeToCropDiseaseService(HttpServletRequest request) {
@@ -62,11 +63,23 @@ public class GatewayController {
                     .uri(URI.create(targetUrl))
                     .method(request.getMethod(), bodyBytes.length > 0 ? HttpRequest.BodyPublishers.ofByteArray(bodyBytes) : HttpRequest.BodyPublishers.noBody());
 
-            // Copy request headers (excluding Host and Content-Length which Java HttpClient sets automatically)
+            // Copy request headers (excluding restricted headers that Java HttpClient handles or restricts)
             Enumeration<String> headerNames = request.getHeaderNames();
             while (headerNames.hasMoreElements()) {
                 String name = headerNames.nextElement();
-                if (!name.equalsIgnoreCase("host") && !name.equalsIgnoreCase("content-length") && !name.equalsIgnoreCase("connection")) {
+                String lowerName = name.toLowerCase();
+                if (!lowerName.equals("host") && 
+                    !lowerName.equals("content-length") && 
+                    !lowerName.equals("connection") && 
+                    !lowerName.equals("expect") && 
+                    !lowerName.equals("upgrade") && 
+                    !lowerName.equals("keep-alive") && 
+                    !lowerName.equals("proxy-authenticate") && 
+                    !lowerName.equals("proxy-authorization") && 
+                    !lowerName.equals("te") && 
+                    !lowerName.equals("trailer") && 
+                    !lowerName.equals("transfer-encoding") &&
+                    !lowerName.equals("origin")) {
                     Enumeration<String> values = request.getHeaders(name);
                     while (values.hasMoreElements()) {
                         builder.header(name, values.nextElement());
@@ -79,11 +92,17 @@ public class GatewayController {
             HttpHeaders responseHeaders = new HttpHeaders();
             for (Map.Entry<String, List<String>> entry : response.headers().map().entrySet()) {
                 String key = entry.getKey();
-                // Avoid duplicating CORS headers since our WebConfig handles it
-                if (!key.equalsIgnoreCase("Access-Control-Allow-Origin") &&
-                    !key.equalsIgnoreCase("Access-Control-Allow-Credentials") &&
-                    !key.equalsIgnoreCase("Access-Control-Allow-Methods") &&
-                    !key.equalsIgnoreCase("Access-Control-Allow-Headers")) {
+                String lowerKey = key.toLowerCase();
+                // Avoid duplicating CORS headers, hop-by-hop headers, and transfer/content length headers
+                if (!lowerKey.equals("access-control-allow-origin") &&
+                    !lowerKey.equals("access-control-allow-credentials") &&
+                    !lowerKey.equals("access-control-allow-methods") &&
+                    !lowerKey.equals("access-control-allow-headers") &&
+                    !lowerKey.equals("transfer-encoding") &&
+                    !lowerKey.equals("content-length") &&
+                    !lowerKey.equals("connection") &&
+                    !lowerKey.equals("keep-alive") &&
+                    !lowerKey.equals("upgrade")) {
                     for (String value : entry.getValue()) {
                         responseHeaders.add(key, value);
                     }

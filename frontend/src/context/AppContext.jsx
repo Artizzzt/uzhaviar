@@ -79,8 +79,10 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       console.warn("Backend login failed, fallback login", e);
     }
+    const namePrefix = email ? email.split("@")[0] : "Farmer";
+    const displayName = namePrefix.charAt(0).toUpperCase() + namePrefix.slice(1);
     setUser({
-      name: "Farmer Murugan",
+      name: displayName,
       email: email || "murugan@gmail.com",
       phone: "+91 98321-48321",
       id: "FRM-2026-979",

@@ -27,7 +27,16 @@ import { useApp } from "../../context/AppContext";
 
 export default function AdminFarmMap() {
   const { farmers } = useApp();
-  const [selectedFarmer, setSelectedFarmer] = useState(farmers[0]);
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
+
+  // Use the explicitly selected farmer, fallback to the first farmer in the list if available
+  const displayFarmer = selectedFarmer || (farmers && farmers.length > 0 ? farmers[0] : null);
+
+  // Filter for farmers that have a valid coordinate pair [latitude, longitude]
+  const validFarmers = farmers ? farmers.filter(
+    (f) => f.position && Array.isArray(f.position) && f.position.length === 2 && 
+           typeof f.position[0] === "number" && typeof f.position[1] === "number"
+  ) : [];
 
   return (
     <div className="min-h-screen flex bg-[#eef8f3]">
@@ -54,13 +63,14 @@ export default function AdminFarmMap() {
                 style={{
                   height: "650px",
                   width: "100%",
+                  zIndex: 0
                 }}
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
-                {farmers.map((farmer) => (
+                {validFarmers.map((farmer) => (
                   <Marker
                     key={farmer.id}
                     position={farmer.position}
@@ -82,23 +92,21 @@ export default function AdminFarmMap() {
                 Farmer Details
               </h2>
 
-              <div className="space-y-3">
-
-                <p><b>ID:</b> {selectedFarmer.id}</p>
-
-                <p><b>Name:</b> {selectedFarmer.name}</p>
-
-                <p><b>Email:</b> {selectedFarmer.email}</p>
-
-                <p><b>Mobile:</b> {selectedFarmer.mobile}</p>
-
-                <p><b>Village:</b> {selectedFarmer.village}</p>
-
-                <p><b>Crop:</b> {selectedFarmer.crop}</p>
-
-                <p><b>Status:</b> {selectedFarmer.status}</p>
-
-              </div>
+              {displayFarmer ? (
+                <div className="space-y-3">
+                  <p><b>ID:</b> {displayFarmer.id}</p>
+                  <p><b>Name:</b> {displayFarmer.name}</p>
+                  <p><b>Email:</b> {displayFarmer.email}</p>
+                  <p><b>Mobile:</b> {displayFarmer.mobile}</p>
+                  <p><b>Village:</b> {displayFarmer.village}</p>
+                  <p><b>Crop:</b> {displayFarmer.crop || "Not Specified"}</p>
+                  <p><b>Status:</b> {displayFarmer.status}</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">
+                  {farmers && farmers.length > 0 ? "Select a farmer from the map to view details." : "No registered farmers found."}
+                </p>
+              )}
 
             </div>
 

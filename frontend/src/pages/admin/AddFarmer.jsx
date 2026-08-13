@@ -9,12 +9,13 @@ const AddFarmer = () => {
   const navigate = useNavigate();
   const { farmers, setFarmers, diseases, setDiseases, pesticides, setPesticides, showToast } = useApp();
 
-  const ids = farmers.map((f) => parseInt(f.id.replace("F", ""), 10));
+  const ids = farmers
+    .map((f) => (f.farmerId ? parseInt(f.farmerId.replace("F", ""), 10) : null))
+    .filter((num) => num !== null && !isNaN(num));
   const maxId = ids.length > 0 ? Math.max(...ids) : 0;
   const nextId = "F" + String(maxId + 1).padStart(3, "0");
 
   const [farmer, setFarmer] = useState({
-    id: nextId,
     name: "",
     email: "",
     mobile: "",
@@ -43,7 +44,6 @@ const AddFarmer = () => {
     e.preventDefault();
 
     if (
-      !farmer.id ||
       !farmer.name ||
       !farmer.email ||
       !farmer.mobile ||
@@ -60,6 +60,7 @@ const AddFarmer = () => {
 
     const newFarmer = {
       ...farmer,
+      farmerId: nextId,
       position: [lat, lng],
       fertilizerName: "Urea",
       cropHealth: diseaseForm.disease && diseaseForm.disease !== "None" ? 75 : 90,
@@ -71,8 +72,9 @@ const AddFarmer = () => {
       humidity: 70,
     };
 
+    let savedFarmer = null;
     try {
-      const savedFarmer = await createFarmer(newFarmer);
+      savedFarmer = await createFarmer(newFarmer);
       setFarmers((prev) => [...prev, savedFarmer || newFarmer]);
     } catch (err) {
       console.warn("Backend createFarmer fallback", err);
@@ -82,9 +84,10 @@ const AddFarmer = () => {
     // Add Disease (optional)
     if (diseaseForm.disease && diseaseForm.disease !== "None") {
       const nextDiseaseId = "D" + String(diseases.length + 1).padStart(3, "0");
+      const targetFarmerId = savedFarmer ? savedFarmer.id : nextId;
       const newDisease = {
         id: nextDiseaseId,
-        farmerId: farmer.id,
+        farmerId: targetFarmerId,
         disease: diseaseForm.disease,
         severity: diseaseForm.severity,
         status: diseaseForm.status,
@@ -106,7 +109,7 @@ const AddFarmer = () => {
         const nextPesticideId = "P" + String(pesticides.length + 1).padStart(3, "0");
         const newPesticide = {
           id: nextPesticideId,
-          farmerId: farmer.id,
+          farmerId: targetFarmerId,
           pesticide: diseaseForm.pesticide,
           dosage: diseaseForm.dosage || "100 ml/acre",
           sprayTime: diseaseForm.sprayTime,
@@ -154,7 +157,7 @@ const AddFarmer = () => {
                       type="text"
                       name="id"
                       readOnly
-                      value={farmer.id}
+                      value={nextId}
                       className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-2.5 text-sm focus:outline-none cursor-not-allowed text-gray-500"
                     />
                   </div>

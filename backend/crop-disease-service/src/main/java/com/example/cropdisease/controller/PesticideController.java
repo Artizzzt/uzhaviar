@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pesticides")
-public class PesticideController {
+public class PesticideController { 
 
     private final PesticideService pesticideService;
 
@@ -18,7 +18,7 @@ public class PesticideController {
         this.pesticideService = pesticideService;
     }
 
-    @GetMapping
+    @GetMapping 
     public ResponseEntity<List<Pesticide>> getAllPesticides() {
         return ResponseEntity.ok(pesticideService.getAllPesticides());
     }

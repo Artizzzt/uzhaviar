@@ -1,20 +1,41 @@
 package com.example.analytics.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import com.example.analytics.config.ListMapConverter;
+import com.example.analytics.config.MapStringIntegerConverter;
 import java.util.List;
 import java.util.Map;
 
-@Document(collection = "analytics")
+@Entity
+@Table(name = "analytics")
 public class AnalyticsData {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @Convert(converter = ListMapConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<Map<String, Object>> cropHealthTrend;
+
+    @Convert(converter = ListMapConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<Map<String, Object>> fertilizerTrend;
+
+    @Convert(converter = ListMapConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<Map<String, Object>> soilMoistureTrend;
+
+    @Convert(converter = ListMapConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<Map<String, Object>> diseaseHistory;
+
+    @Convert(converter = ListMapConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<Map<String, Object>> yieldEstimation;
+
+    @Convert(converter = MapStringIntegerConverter.class)
+    @Column(columnDefinition = "TEXT")
     private Map<String, Integer> soilNutrients;
 
     public AnalyticsData() {}

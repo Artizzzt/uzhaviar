@@ -1,4 +1,0 @@
-com\example\gateway\GatewayApplication.class
-com\example\gateway\config\SecurityConfig.class
-com\example\gateway\controller\GatewayController.class
-com\example\gateway\config\WebConfig.class

@@ -1,13 +1,15 @@
 package com.example.farmer.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import com.example.farmer.config.DoubleListConverter;
 import java.util.List;
 
-@Document(collection = "farmers")
+@Entity
+@Table(name = "farmers")
 public class Farmer {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String farmerId;
     private String name;
@@ -21,6 +23,9 @@ public class Farmer {
     private String cropType;
     private String landArea;
     private String status;
+
+    @Convert(converter = DoubleListConverter.class)
+    @Column(name = "location_position", columnDefinition = "TEXT")
     private List<Double> position; // [latitude, longitude]
     private String fertilizerName;
     private Integer cropHealth;

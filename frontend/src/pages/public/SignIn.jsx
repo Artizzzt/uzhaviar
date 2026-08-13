@@ -15,34 +15,38 @@ const SignIn = () => {
 
   console.log('SignIn Render:', { emailOrPhone, password });
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
-  setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  if (!emailOrPhone.trim() || !password.trim()) {
-    setError("Please fill in all fields.");
-    return;
-  }
-
-  // Admin login
-  if (emailOrPhone === "admin@gmail.com") {
-    if (password === "admin123") {
-      navigate("/admin-dashboard");
-    } else {
-      setError("Invalid email or password.");
+    if (!emailOrPhone.trim() || !password.trim()) {
+      setError("Please fill in all fields.");
+      return;
     }
-    return; // Prevent farmer login check
-  }
 
-  // Farmer login
-  const success = login(emailOrPhone, password);
+    // Admin login
+    if (emailOrPhone === "admin@gmail.com") {
+      if (password === "admin123") {
+        navigate("/admin-dashboard");
+      } else {
+        setError("Invalid email or password.");
+      }
+      return; // Prevent farmer login check
+    }
 
-  if (success) {
-    navigate("/dashboard");
-  } else {
-    setError("Invalid email or password.");
-  }
-};
+    // Farmer login
+    try {
+      const success = await login(emailOrPhone, password);
+
+      if (success) {
+        navigate("/dashboard");
+      } else {
+        setError("Invalid email or password.");
+      }
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    }
+  };
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
       
@@ -71,7 +75,7 @@ const SignIn = () => {
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 bg-white relative">
         {/* Back to Home Link */}
         <Link 
-          to="/role-selection" 
+          to="/" 
           className="absolute top-8 left-8 text-xs font-bold text-primary hover:text-green-700 flex items-center gap-1.5 transition-colors"
         >
           <ArrowLeft size={14} className="stroke-[3]" />
