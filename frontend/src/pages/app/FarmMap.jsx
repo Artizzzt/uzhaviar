@@ -97,65 +97,7 @@ const FarmMap = () => {
         </div>
       </div>
 
-      {/* 2. SEARCH BAR & CONTROLS */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-slate-100 p-4 rounded-xl shadow-soft">
-        
-        {/* Search input form */}
-        <form onSubmit={handleSearchSubmit} className="w-full sm:max-w-md flex items-center gap-2">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-textmuted">
-              <Search size={15} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search location (e.g. Coimbatore, Salem)..."
-              className="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-            />
-          </div>
-          <Button 
-            type="submit" 
-            variant="primary" 
-            className="text-xs font-bold px-4 py-2"
-          >
-            Go
-          </Button>
-        </form>
 
-        {/* Temporary Search Result feedback text */}
-        {activeSearch && (
-          <span className="text-[11px] font-bold text-primary bg-lightgreen px-3 py-1 rounded-full animate-pulse select-none">
-            Searching for: "{activeSearch}"...
-          </span>
-        )}
-
-        {/* Map View Toggle Buttons */}
-        <div className="flex items-center border border-slate-200 rounded-full p-0.5 select-none shrink-0">
-          <button
-            onClick={() => setMapType('map')}
-            className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1 ${
-              mapType === 'map' 
-                ? 'bg-primary text-white shadow-sm' 
-                : 'text-textmuted hover:text-primary'
-            }`}
-          >
-            <Layers size={13} />
-            Map
-          </button>
-          <button
-            onClick={() => setMapType('satellite')}
-            className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all duration-200 flex items-center gap-1 ${
-              mapType === 'satellite' 
-                ? 'bg-primary text-white shadow-sm' 
-                : 'text-textmuted hover:text-primary'
-            }`}
-          >
-            Satellite
-          </button>
-        </div>
-
-      </div>
 
       {/* 3. MAP AREA CONTAINER */}
       <div 

@@ -34,3 +34,7 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Launch scripts
+start_project.ps1
+
