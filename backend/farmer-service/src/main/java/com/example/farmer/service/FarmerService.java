@@ -25,7 +25,8 @@ public class FarmerService {
     }
 
     public Optional<Farmer> getFarmerByFarmerId(String farmerId) {
-        return farmerRepository.findByFarmerId(farmerId);
+        List<Farmer> list = farmerRepository.findByFarmerId(farmerId);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
     public Optional<Farmer> getFarmerByEmail(String email) {

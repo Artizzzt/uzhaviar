@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import Button from '../../components/Button';
+import { getFarmerById, getFarmPins, saveFarmPin, deleteFarmPin } from '../../services/api';
 import {
   ArrowLeft,
   Plus,
@@ -10,11 +11,24 @@ import {
   Sprout,
   X,
   Calendar,
+  Layers,
   Info
 } from 'lucide-react';
 
 const FarmMap = () => {
   const { user } = useApp();
+  const [pins, setPins] = useState([]);
+
+  useEffect(() => {
+    if (user?.id) {
+      getFarmerById(user.id).catch(err => console.warn("Failed to fetch farmer details on map load", err));
+      getFarmPins(user.id).then(data => {
+        if (Array.isArray(data)) {
+          setPins(data);
+        }
+      }).catch(err => console.warn("Failed to fetch map pins on load", err));
+    }
+  }, [user?.id]);
 
   const [zoom, setZoom] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +39,43 @@ const FarmMap = () => {
 
   const handleZoomOut = () => {
     setZoom(prev => Math.max(prev - 0.25, 0.75));
+  };
+
+  const handleMapClick = async (e) => {
+    if (e.target.closest('.custom-farm-pin')) {
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+    const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+
+    const note = prompt("Enter note/warning for this location (e.g. 'needs watering', 'weed patch'):");
+    if (note && note.trim()) {
+      try {
+        const saved = await saveFarmPin({
+          farmerId: user?.id || "FRM-2026-979",
+          x: clickX,
+          y: clickY,
+          note: note.trim(),
+          pinType: 'warning'
+        });
+        setPins(prev => [...prev, saved]);
+      } catch (err) {
+        console.error("Failed to save farm pin:", err);
+      }
+    }
+  };
+
+  const handlePinDoubleClick = async (e, pinId) => {
+    e.stopPropagation();
+    if (window.confirm("Do you want to delete this map note?")) {
+      try {
+        await deleteFarmPin(pinId);
+        setPins(prev => prev.filter(p => p.id !== pinId));
+      } catch (err) {
+        console.error("Failed to delete farm pin:", err);
+      }
+    }
   };
 
   // Mock Map Vector background grid
@@ -91,7 +142,8 @@ const FarmMap = () => {
 
         {/* Map Background */}
         <div
-          className="absolute inset-0 transition-transform duration-300 ease-out"
+          onClick={handleMapClick}
+          className="absolute inset-0 transition-transform duration-300 ease-out cursor-crosshair"
           style={{
             transform: `scale(${zoom})`,
             transformOrigin: 'center'
@@ -103,6 +155,26 @@ const FarmMap = () => {
               backgroundImage: 'url(/farm_satellite_map.png)'
             }}
           />
+
+          {/* Custom Dropped Pins */}
+          {pins.map(pin => (
+            <div
+              key={pin.id}
+              onClick={(e) => e.stopPropagation()}
+              onDoubleClick={(e) => handlePinDoubleClick(e, pin.id)}
+              className="absolute custom-farm-pin group z-20 cursor-pointer"
+              style={{ left: `${pin.x}%`, top: `${pin.y}%`, transform: 'translate(-50%, -100%)' }}
+              title={pin.note}
+            >
+              <div className="relative">
+                <div className="absolute w-6 h-6 bg-amber-500/20 rounded-full animate-ping -left-1.5 -top-1.5"></div>
+                <MapPin size={18} className="text-amber-500 fill-amber-100 hover:scale-110 active:scale-95 transition-transform" />
+              </div>
+              <div className="hidden group-hover:block absolute left-1/2 -translate-x-1/2 bottom-full mb-2 bg-slate-900/90 text-white text-[9px] font-bold py-1 px-2.5 rounded shadow-lg whitespace-nowrap z-30">
+                {pin.note} <span className="opacity-60 block mt-0.5">(Double-click to remove)</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Google Maps Badge */}

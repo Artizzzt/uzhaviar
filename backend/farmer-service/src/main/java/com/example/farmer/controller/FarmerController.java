@@ -26,6 +26,7 @@ public class FarmerController {
     @GetMapping("/{id}")
     public ResponseEntity<Farmer> getFarmerById(@PathVariable String id) {
         return farmerService.getFarmerById(id)
+                .or(() -> farmerService.getFarmerByFarmerId(id))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

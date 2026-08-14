@@ -26,7 +26,7 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedUserIfMissing("farmer@uzhaviyar.com", "Farmer@123", "Murugan S.", "ROLE_FARMER", "F001", "Paddy", "5 acres");
+        seedUserIfMissing("farmer@uzhaviyar.com", "Farmer@123", "Murugan S.", "ROLE_FARMER", "FRM-2026-979", "Paddy", "5 acres");
         seedUserIfMissing("manager@uzhaviyar.com", "Manager@123", "Mr. Rajan Kumar", "ROLE_MANAGER", "M001", "Field Crops & Soil", "South Zone");
         seedUserIfMissing("admin@uzhaviyar.com", "Admin@123", "System Admin", "ROLE_ADMIN", "A001", "Platform Operations", "Head Office");
 

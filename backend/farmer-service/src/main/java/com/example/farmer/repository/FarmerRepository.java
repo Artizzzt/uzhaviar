@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FarmerRepository extends JpaRepository<Farmer, String> {
     Optional<Farmer> findByEmail(String email);
-    Optional<Farmer> findByFarmerId(String farmerId);
+    List<Farmer> findByFarmerId(String farmerId);
     List<Farmer> findByStatus(String status);
     List<Farmer> findByCrop(String crop);
     List<Farmer> findByVillage(String village);

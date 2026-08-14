@@ -40,6 +40,16 @@ export const deleteFarmer = (id) => fetchJson(`/farmers/${id}`, {
   method: 'DELETE',
 });
 
+// Custom Farm Map Pins API
+export const getFarmPins = (farmerId) => fetchJson(`/farmers/pins/${farmerId}`);
+export const saveFarmPin = (pinData) => fetchJson('/farmers/pins', {
+  method: 'POST',
+  body: JSON.stringify(pinData),
+});
+export const deleteFarmPin = (id) => fetchJson(`/farmers/pins/${id}`, {
+  method: 'DELETE',
+});
+
 // Diseases API
 export const getDiseases = () => fetchJson('/diseases');
 export const getDiseasesByFarmer = (farmerId) => fetchJson(`/diseases/farmer/${farmerId}`);
