@@ -38,3 +38,5 @@ Thumbs.db
 # Launch scripts
 start_project.ps1
 
+# Custom Agent settings
+.agents/
