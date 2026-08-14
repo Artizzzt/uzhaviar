@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/Card';
@@ -13,10 +13,16 @@ import {
 } from 'lucide-react';
 
 const Settings = () => {
-  const { user, notificationPreferences, updateUserPreferences } = useApp();
+  const { user, notificationPreferences, updateUserPreferences, fetchUserPreferences } = useApp();
   const navigate = useNavigate();
 
   const [activeModal, setActiveModal] = useState(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserPreferences(user.id);
+    }
+  }, [user?.id, fetchUserPreferences]);
 
   const toggleAlert = (key) => {
     updateUserPreferences({
