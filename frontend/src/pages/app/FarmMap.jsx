@@ -18,6 +18,15 @@ import {
 const FarmMap = () => {
   const { user } = useApp();
   const [pins, setPins] = useState([]);
+  
+  // Custom Pin Modal States
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [pinNote, setPinNote] = useState('');
+  const [pendingCoords, setPendingCoords] = useState(null);
+
+  // Custom Pin Delete Modal States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -41,7 +50,7 @@ const FarmMap = () => {
     setZoom(prev => Math.max(prev - 0.25, 0.75));
   };
 
-  const handleMapClick = async (e) => {
+  const handleMapClick = (e) => {
     if (e.target.closest('.custom-farm-pin')) {
       return;
     }
@@ -49,33 +58,59 @@ const FarmMap = () => {
     const clickX = ((e.clientX - rect.left) / rect.width) * 100;
     const clickY = ((e.clientY - rect.top) / rect.height) * 100;
 
-    const note = prompt("Enter note/warning for this location (e.g. 'needs watering', 'weed patch'):");
-    if (note && note.trim()) {
-      try {
-        const saved = await saveFarmPin({
-          farmerId: user?.id || "FRM-2026-979",
-          x: clickX,
-          y: clickY,
-          note: note.trim(),
-          pinType: 'warning'
-        });
-        setPins(prev => [...prev, saved]);
-      } catch (err) {
-        console.error("Failed to save farm pin:", err);
-      }
+    setPendingCoords({ x: clickX, y: clickY });
+    setPinNote('');
+    setIsPinModalOpen(true);
+  };
+
+  const handleSavePin = async (e) => {
+    if (e) e.preventDefault();
+    if (!pinNote.trim() || !pendingCoords) return;
+
+    try {
+      const saved = await saveFarmPin({
+        farmerId: user?.id || "FRM-2026-979",
+        x: pendingCoords.x,
+        y: pendingCoords.y,
+        note: pinNote.trim(),
+        pinType: 'warning'
+      });
+      setPins(prev => [...prev, saved]);
+      setIsPinModalOpen(false);
+      setPendingCoords(null);
+      setPinNote('');
+    } catch (err) {
+      console.error("Failed to save farm pin:", err);
     }
   };
 
-  const handlePinDoubleClick = async (e, pinId) => {
+  const handleCancelPin = () => {
+    setIsPinModalOpen(false);
+    setPendingCoords(null);
+    setPinNote('');
+  };
+
+  const handlePinDoubleClick = (e, pinId) => {
     e.stopPropagation();
-    if (window.confirm("Do you want to delete this map note?")) {
-      try {
-        await deleteFarmPin(pinId);
-        setPins(prev => prev.filter(p => p.id !== pinId));
-      } catch (err) {
-        console.error("Failed to delete farm pin:", err);
-      }
+    setPendingDeleteId(pinId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    try {
+      await deleteFarmPin(pendingDeleteId);
+      setPins(prev => prev.filter(p => p.id !== pendingDeleteId));
+      setIsDeleteModalOpen(false);
+      setPendingDeleteId(null);
+    } catch (err) {
+      console.error("Failed to delete farm pin:", err);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setPendingDeleteId(null);
   };
 
   // Mock Map Vector background grid
@@ -404,6 +439,109 @@ const FarmMap = () => {
 
           </div>
 
+        </div>
+      )}
+
+      {/* 4. CUSTOM PIN ENTRY MODAL */}
+      {isPinModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-card shadow-2xl max-w-sm w-full p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 select-none">
+              <div className="flex items-center gap-2 text-amber-500">
+                <MapPin size={18} className="stroke-[2.5]" />
+                <h3 className="text-base font-black text-textdark tracking-tight">
+                  Add Farm Note
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleCancelPin}
+                className="p-1 hover:bg-slate-50 text-textmuted hover:text-danger rounded-lg transition-colors focus:outline-none"
+              >
+                <X size={16} className="stroke-[2.5]" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSavePin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-textmuted mb-1.5 uppercase tracking-wider font-bold">
+                  Note / Warning details
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={pinNote}
+                  onChange={(e) => setPinNote(e.target.value)}
+                  placeholder="e.g. broken pipe, weed patch, needs watering..."
+                  className="w-full bg-slate-50 border border-slate-200 text-textdark text-xs rounded-xl px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:bg-white transition-all shadow-inner font-semibold"
+                  autoFocus
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2.5 pt-2 select-none">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={handleCancelPin}
+                  className="px-4 py-2 text-xs font-bold border border-slate-200 text-textmuted hover:bg-slate-50 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={!pinNote.trim()}
+                  className="px-4 py-2 text-xs font-bold bg-primary hover:bg-primary/95 text-white disabled:opacity-50 rounded-xl"
+                >
+                  Save Note
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. CUSTOM PIN DELETE CONFIRMATION MODAL */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-card shadow-2xl max-w-sm w-full p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center gap-2.5 text-danger mb-4 select-none">
+              <div className="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center">
+                <X size={18} className="stroke-[2.5]" />
+              </div>
+              <h3 className="text-base font-black text-textdark tracking-tight">
+                Delete Farm Note?
+              </h3>
+            </div>
+
+            {/* Modal Body */}
+            <p className="text-xs text-textmuted leading-relaxed mb-6 font-semibold">
+              Are you sure you want to delete this farm note? This action will permanently remove it from the map and database.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-2.5 select-none">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={handleCancelDelete}
+                className="px-4 py-2 text-xs font-bold border border-slate-200 text-textmuted hover:bg-slate-50 rounded-xl"
+              >
+                Cancel
+              </Button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="px-5 py-2 text-xs font-bold bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-xl transition-all shadow-sm hover:shadow focus:outline-none"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
